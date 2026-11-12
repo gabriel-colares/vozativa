@@ -1,168 +1,200 @@
 # VozAtiva
 
-**Sua voz em um toque.** Aplicativo Android de comunicação por cartões para a
-oficina de 4 horas da SEMINFO 2026. Demonstração educacional de comunicação
+**Sua voz em um toque.**
+
+Aplicativo de comunicação por cartões: a pessoa escolhe uma mensagem na tela e
+o dispositivo a pronuncia em português brasileiro. Desenvolvido para a oficina
+de React Native da SEMINFO 2026, é uma demonstração educacional de comunicação
 alternativa e ampliada (CAA), não uma solução clínica completa.
 
-## Instalação e execução
+## Funcionalidades
 
-Pré-requisitos: Node.js compatível com Expo SDK 58 (mínimo documentado 22.13.x;
-prefira LTS), pnpm e Expo Go compatível com SDK 58 no Android.
+- 14 cartões com texto e emoji, organizados em três categorias.
+- Filtro por categoria ou exibição de todas as mensagens.
+- Síntese de voz em português brasileiro com `expo-speech`.
+- Exibição da última mensagem selecionada.
+- Botões **Repetir** e **Cancelar áudio** fixos no rodapé, fora da rolagem.
+- Interrupção da fala anterior ao selecionar outra mensagem.
 
-```bash
-cd vozativa
-pnpm install --frozen-lockfile
-pnpm expo start
-```
-
-Abra o QR Code no Expo Go ou pressione `a` para abrir no emulador Android.
-
-### Versões utilizadas
-
-| Pacote / ferramenta | Versão |
+| Categoria | Mensagens |
 | --- | --- |
-| Expo | 58.0.23 (SDK 58) |
+| Conversas | Olá!, Obrigado!, Sim, Não, Por favor, Até logo! |
+| Necessidades | Quero água, Estou com fome, Preciso de ajuda, Quero ir ao banheiro |
+| Sentimentos | Estou feliz, Estou triste, Estou cansado, Estou com medo |
+
+As conversas aparecem primeiro. A ordem é fixa, sem histórico de uso ou
+personalização. A categoria selecionada e a última mensagem ficam apenas na
+memória e são descartadas ao reiniciar o aplicativo.
+
+## Tecnologias
+
+O projeto usa **JavaScript com JSX**, sem TypeScript.
+
+| Tecnologia | Versão declarada |
+| --- | --- |
+| Expo | ~58.0.23 |
 | React Native | 0.88.1 |
 | React | 19.3.0 |
-| expo-speech | 58.0.3 |
-| TypeScript | 6.0.3 |
-| pnpm | 12.18.0 |
-| Node.js do ambiente de criação | 26.13.0 |
-| Expo Go encontrado no emulador | 58.0.5 |
+| expo-speech | ~58.0.3 |
+| react-native-safe-area-context | ~5.11.1 |
 
-O template resolveu automaticamente `blank-typescript@sdk-58`. A combinação foi
-escolhida após consultar o Expo Go instalado, não apenas o SDK mais recente.
-A documentação oficial alerta sobre uma transição SDK 57/58 em celulares:
-confira a compatibilidade do Expo Go do laboratório antes da oficina. Não
-atualize indiscriminadamente as dependências. Preserve `pnpm-lock.yaml`.
+As dependências estão em `package.json`, e as versões resolvidas ficam em
+`pnpm-lock.yaml`. A interface utiliza componentes nativos, sem biblioteca de
+UI ou navegação entre telas.
 
-Comandos executados para criar o projeto, a partir da pasta pai:
+## Executar o projeto
+
+### Pré-requisitos
+
+- Node.js compatível com o Expo SDK 58.
+- pnpm instalado.
+- Celular Android com Expo Go compatível com o SDK 58 ou emulador Android
+  configurado.
+- Mecanismo de síntese de voz com uma voz em português (Brasil) disponível.
+
+Na pasta do projeto, execute:
 
 ```bash
-pnpm create expo-app vozativa --template blank-typescript
-cd vozativa
-pnpm expo install expo-speech
+pnpm install --frozen-lockfile
+pnpm start
 ```
 
-`expo-speech` está incluído no Expo Go e não exige uma compilação nativa própria.
-Não foram adicionados Router, navegação, bibliotecas de UI ou serviços externos.
-O template inclui `expo-status-bar`; ESLint e sua configuração Expo são apenas
-ferramentas de desenvolvimento, não dependências da interface.
+Abra o projeto pelo QR Code no Expo Go. Para usar um emulador Android, inicie-o
+e pressione `a` no terminal do Expo, ou execute:
+
+```bash
+pnpm android
+```
+
+Se houver problemas de cache após trocar de versão do código, encerre o
+servidor e reinicie com:
+
+```bash
+pnpm expo start --clear
+```
+
+O foco do projeto é **Android em orientação retrato**. Os scripts `pnpm ios` e
+`pnpm web` existem, mas essas plataformas não foram homologadas.
 
 ## Como usar
 
-1. A tela abre em **Todas**, exibindo os 12 cartões.
-2. Role horizontalmente os filtros para escolher **Necessidades**,
-   **Sentimentos** ou **Conversas**; cada categoria tem quatro frases.
-3. Toque em **Quero água**: o aplicativo interrompe a fala anterior, atualiza
-   **Última mensagem** e solicita a pronúncia em português brasileiro.
-4. Role até o fim para acessar **Repetir** e **Parar áudio**.
-5. Repetir começa desabilitado e fica disponível após escolher uma mensagem.
-   Parar áudio permanece habilitado como ação inofensiva quando não há fala.
-6. Mudar de categoria preserva a última frase; reiniciar o aplicativo limpa os
-   estados. Não há armazenamento persistente.
+1. Ao abrir o aplicativo, o filtro **Todas** mostra os 14 cartões.
+2. Use os filtros horizontais para escolher uma categoria.
+3. Toque em um cartão para solicitar a leitura da mensagem. O texto escolhido
+   aparece em **Última mensagem**, ao final do conteúdo.
+4. Toque em **Repetir** para ouvir novamente a última mensagem. Esse botão fica
+   desabilitado enquanto nenhuma mensagem tiver sido escolhida.
+5. Toque em **Cancelar áudio** para interromper a fala ou um pedido pendente.
 
-## Estrutura e conceitos ensinados
+Trocar de categoria não apaga a última mensagem. Os controles de áudio
+permanecem visíveis enquanto os cartões são rolados.
+
+## Voz e funcionamento offline
+
+A fala usa o mecanismo de síntese de voz do dispositivo. O aplicativo consulta
+as vozes disponíveis e avisa quando não encontra uma voz em português
+brasileiro ou quando ocorre uma falha. A comunicação visual continua disponível.
+
+Para preparar uma demonstração sem internet externa:
+
+1. Instale previamente as ferramentas, as dependências e o Expo Go.
+2. Nas configurações de síntese de voz do Android, selecione português (Brasil)
+   e baixe os dados de voz para uso offline. Os menus variam por fabricante.
+3. Abra o projeto no aparelho e teste a fala antes da oficina.
+4. Inicie o servidor em modo offline:
+
+   ```bash
+   pnpm expo start --offline
+   ```
+
+Esse modo não instala pacotes nem baixa vozes. No fluxo de desenvolvimento,
+o Expo Go ainda precisa acessar o servidor Metro por rede local ou conexão
+USB/ADB configurada. Uma voz listada pelo sistema não garante que seus dados
+estejam disponíveis offline: isso precisa ser testado no aparelho.
+
+O projeto não implementa backend, contas, gravação de áudio, uso do microfone
+ou serviço próprio de voz em nuvem. A disponibilidade da fala sem internet
+depende do mecanismo de voz e dos dados instalados no dispositivo.
+
+## Estrutura do projeto
 
 ```text
-App.tsx           tela única, estados, funções e StyleSheet
-src/frases.ts     tipo Frase e array com as 12 mensagens
-app.json          nome VozAtiva e configuração básica
-index.ts          entrada gerada pelo template
-pnpm-lock.yaml    versões reproduzíveis dos pacotes
+vozativa/
+├── assets/                         # Ícones e imagens do aplicativo
+├── src/
+│   ├── App.js                      # Tela principal, estados e lógica de voz
+│   ├── frases.js                   # Mensagens e ordem das categorias
+│   ├── estilos.js                  # Estilos e cores por categoria
+│   └── componentes/
+│       ├── Cabecalho.js             # Marca, slogan e barra de status
+│       ├── CartaoFrase.js           # Botão de uma mensagem
+│       ├── ControlesAudio.js        # Repetir e cancelar no rodapé
+│       ├── FiltrosCategorias.js     # Seleção horizontal de categorias
+│       └── UltimaMensagem.js        # Texto da última mensagem escolhida
+├── app.json                        # Configuração do Expo
+├── index.js                        # Registro do componente principal
+├── package.json                    # Dependências e scripts
+└── pnpm-lock.yaml                  # Versões resolvidas das dependências
 ```
 
-- `View` organiza a interface; `Text` apresenta textos; `Pressable` recebe toques.
-- Uma `ScrollView` vertical permite acessar todos os cartões e controles.
-  Outra, horizontal, acomoda os filtros sem comprimir seus rótulos.
-- Arrays e objetos representam as mensagens; `.map()` cria os botões com chaves
-  estáveis; `.filter()` deriva o conteúdo da categoria selecionada.
-- Dois `useState` guardam a categoria e a última frase.
-- `StyleSheet` organiza a paleta, os espaçamentos e a tipografia nativa.
-- `falarFrase` chama `await Speech.stop()` antes de `Speech.speak`, com
-  `language: 'pt-BR'` e `rate: 0.9`. Não utiliza pause ou resume.
-- Um contador em `useRef` invalida pedidos antigos durante as operações
-  assíncronas, evitando que toques rápidos ou Parar áudio deixem uma solicitação
-  anterior retomar a fala. Não é um terceiro estado visual.
-- A consulta às vozes e o tratamento de erros mostram um aviso simples em caso
-  de falha, preservando a comunicação visual.
+Os componentes recebem dados e funções por propriedades. `src/App.js`
+centraliza os estados de categoria e última mensagem, além das operações de
+fala. Uma referência numérica invalida pedidos antigos de voz durante
+operações assíncronas, evitando que uma solicitação ultrapassada volte a falar.
 
-## Acessibilidade implementada
+Para editar as mensagens, altere `src/frases.js`, mantendo identificadores
+únicos e categorias compatíveis com os filtros. Ajustes visuais ficam em
+`src/estilos.js`.
 
-- Cabeçalhos semânticos para a marca e as seções.
-- Cartões com papel botão e rótulos como **Falar: Quero água**.
-- Categorias com `accessibilityState.selected` e Repetir com desabilitação
-  funcional, visual e semântica.
-- Emojis são apenas apoio visual, sem foco independente.
-- Alvos de toque de pelo menos 48 dp; cartões com altura mínima de 124 dp.
-- Textos escaláveis, sem limite de linhas ou alturas máximas que cortem frases.
-- Paleta da especificação, duas colunas e controles ao final da rolagem.
-- Sem anúncios automáticos da última frase que concorram com o TTS.
-- No Android, o cabeçalho considera `StatusBar.currentHeight`, incluindo o
-  recorte da câmera; o conteúdo tem respiro inferior para rolar os controles
-  acima da navegação do sistema.
+## Acessibilidade
 
-O alvo é Android em retrato. iOS e web não foram homologados.
+A implementação inclui:
 
-## Preparação para uso offline
+- Papéis e rótulos acessíveis nos botões e cabeçalhos.
+- Indicação semântica da categoria selecionada e do estado de Repetir.
+- Emojis como apoio visual, sem foco independente.
+- Alvos de toque com altura mínima de 48 dp e cartões com mínimo de 124 dp.
+- Textos sem limite explícito de linhas.
+- Áreas seguras no cabeçalho e no rodapé para barras e recortes do aparelho.
 
-Instale previamente Node, pnpm, dependências, Expo Go, mecanismo de síntese de
-voz e dados locais de português (Brasil). No Android, procure as configurações
-de **Síntese de voz / Texto para fala**, selecione pt-BR e baixe a voz para uso
-offline. Os nomes dos menus variam por fabricante.
+Esses recursos não equivalem a uma validação de acessibilidade. O uso com
+TalkBack, fontes ampliadas e diferentes tamanhos de tela ainda precisa ser
+verificado em dispositivos reais.
 
-Abra o projeto uma vez em cada máquina antes da oficina. Depois da preparação:
+## Uso na oficina
 
-```bash
-pnpm expo start --offline
-```
+O projeto permite trabalhar componentes, propriedades, eventos, listas,
+estados, estilos e integração com recursos do dispositivo em uma oficina de
+quatro horas.
 
-`--offline` evita requisições externas da CLI, mas não instala pacotes ou vozes.
-O Expo Go ainda precisa alcançar o Metro pela rede local ou USB/ADB. Sem
-internet externa não significa sem comunicação local com o computador.
+| Duração | Atividade |
+| --- | --- |
+| 30 min | Introdução a React Native, Expo, CAA e acessibilidade |
+| 50 min | Construção da interface com componentes nativos |
+| 45 min | Mensagens em arrays, propriedades e renderização com `map` |
+| 45 min | Integração de voz e eventos de toque |
+| 40 min | Categorias, `useState`, `filter` e última mensagem |
+| 25 min | Verificações de acessibilidade e uso no Android |
+| 5 min | Revisão e demonstração final |
 
-`expo-speech` utiliza o mecanismo do dispositivo: instalar a biblioteca não
-instala a voz brasileira. A listagem de uma voz não comprova que seus dados
-estão disponíveis offline. Confira também volume de mídia, saída de áudio e
-possível concorrência com o TalkBack. O aplicativo não usa backend, gravação,
-microfone ou serviço próprio de TTS em nuvem.
+Prepare aparelhos, dependências e vozes antes da atividade. Inclua os rótulos
+acessíveis durante a construção dos componentes, não apenas no encerramento.
 
-## Roteiro da oficina — 4 horas exatas
+## Estado das verificações
 
-| Horário | Etapa | Conceitos |
-| --- | --- | --- |
-| 00:00–00:30 | Apresentação (30 min) | React Native, Expo, CAA e acessibilidade |
-| 00:30–01:20 | Construção visual (50 min) | View, Text, StyleSheet, ScrollView e Pressable |
-| 01:20–02:05 | Dados dos cartões (45 min) | Arrays, objetos, propriedades e map |
-| 02:05–02:50 | Aplicativo falando (45 min) | expo-speech, onPress e funções |
-| 02:50–03:30 | Categorias e última frase (40 min) | useState, filter e renderização |
-| 03:30–03:55 | Acessibilidade e testes (25 min) | TalkBack, fonte, contraste e alvos |
-| 03:55–04:00 | Encerramento (5 min) | Revisão e demonstração |
+O projeto não possui suíte de testes automatizados nem scripts de lint ou
+checagem de tipos configurados. Ainda não há validação concluída de pronúncia,
+concorrência de áudio, TalkBack, fonte ampliada ou funcionamento offline no
+Android.
 
-Inclua rótulos e papéis acessíveis ao criar cada botão, não apenas na etapa final.
-Prepare o laboratório antes: aparelhos/emuladores, pacotes, voz pt-BR e material
-local. Geração de APK não faz parte dos exercícios.
+Checklist para validação manual:
 
-## Validações deixadas para depois
-
-Por solicitação do usuário, os testes foram interrompidos nesta entrega. Antes
-disso, `pnpm exec tsc --noEmit`, `pnpm expo install --check` e
-`pnpm exec eslint App.tsx src/frases.ts` terminaram sem erros. A primeira chamada
-a `CI=1 pnpm expo lint` instalou/configurou ESLint, mas reportou incompatibilidade
-de versão; a execução direta do ESLint funcionou. O script `pnpm lint` usa a
-execução direta para evitar esse problema.
-
-Não há validação concluída de pronúncia, fila de áudio, TalkBack, fonte ampliada
-ou funcionamento offline no Android. Esses itens permanecem pendentes, sem
-alegação de aprovação dos critérios de aceitação. Para a etapa futura:
-
-```bash
-pnpm typecheck
-pnpm lint
-```
-
-No Android, conferir as 12 frases e os quatro cartões por grupo, tocar Quero
-água, substituir a fala, repetir e parar. Com TalkBack, percorrer todos os
-filtros/cartões por gestos, acionar um cartão por toque duplo e conferir os
-estados selecionado/desabilitado. Verificar larguras de 360–430 dp, fonte
-ampliada e fala sem internet externa com voz local preparada.
+- [ ] Conferir os 14 cartões e a filtragem das três categorias.
+- [ ] Ouvir as mensagens com uma voz em português brasileiro.
+- [ ] Selecionar cartões rapidamente e verificar a substituição da fala.
+- [ ] Repetir a última mensagem e cancelar a fala, inclusive durante pedidos pendentes.
+- [ ] Confirmar que trocar de categoria preserva a última mensagem.
+- [ ] Percorrer filtros, cartões e controles com TalkBack.
+- [ ] Verificar fontes ampliadas e larguras de tela entre 360 e 430 dp.
+- [ ] Confirmar que os controles fixos não cobrem os cartões.
+- [ ] Testar a fala sem internet externa, com a voz local previamente instalada.
